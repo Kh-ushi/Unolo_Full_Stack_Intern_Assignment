@@ -187,3 +187,22 @@ The query now executes correctly in the active database
 - History view behaves predictably across renders
 
 ### --------------------------------------------------------------------------------------------------------------------------###
+
+## 5.  API returns wrong status codes in certain scenarios
+
+## Location
+- `backend/routes/checkin.js` (Line-33)
+
+### What Was Wrong
+- Returning 200 OK incorrectly signals success
+
+
+ ## How It Was Fixed
+ - Replaced with 400 status code
+
+ ## Why was the fix correct
+ - Meaning of 400- The client sent a request that the server cannot process because it is invalid.
+
+
+ ### --------------------------------------------------------------------------------------------------------------------------###
+

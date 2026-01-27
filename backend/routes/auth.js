@@ -43,6 +43,8 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
+
+        //TODO: Remove password from token payload
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role, name: user.name, password: user.password },
             process.env.JWT_SECRET,
