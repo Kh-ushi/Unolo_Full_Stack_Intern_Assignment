@@ -78,3 +78,45 @@ Frontend runs on: `http://localhost:5173`
 
 - The database uses SQLite - no external database setup required
 - Run `npm run init-db` to reset the database to initial state
+
+
+## --------- Changes Done After Downloading Starter Code -----------------------------------##
+
+
+## Environment Setup
+
+- The project uses Node.js v20 (LTS) for stability.
+- Newer Node versions (v22+) caused native dependency issues with better-sqlite3, so Node LTS was used to ensure a smooth setup.
+
+
+## Database Schema Updated for Compatability
+
+- The original schema provided was MySQL-specific.
+- The backend in this setup uses SQLite (file-based database).
+- As part of setup, the schema was converted to SQLite-compatible syntax, including:
+  - AUTO_INCREMENT → INTEGER PRIMARY KEY AUTOINCREMENT
+  - ENUM → TEXT with CHECK constraint
+  - VARCHAR / DECIMAL → TEXT / REAL
+  - Removed CREATE DATABASE and USE statements
+
+
+## Database Reset & Initialization Strategy
+ - For local development and testing, the project uses a full reset-and-reinitialize database strategy to ensure a clean and predictable setup.
+ 
+ -Disable foreign key checks temporarily
+Foreign key constraints are turned off to allow tables to be dropped safely, regardless of dependency order.
+
+Drop all existing tables
+All user-defined tables in the SQLite database are removed. SQLite’s internal system tables are preserved.
+
+Re-enable foreign key enforcement
+Foreign key checks are turned back on to maintain data integrity for newly created tables.
+
+Load database schema
+The schema is applied by executing the SQL in schema.sql, recreating all required tables.
+
+Load seed data
+Initial data from seed.sql is inserted to provide a ready-to-use local environment (e.g., test users, clients, assignments).
+
+## This reset-and-reinitialize approach simplifies setup, removes ambiguity during development, and ensures anyone running the project locally starts with the same database state
+
