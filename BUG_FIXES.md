@@ -88,7 +88,8 @@
     ` "INSERT INTO checkins (employee_id, client_id, latitude, longitude, notes, status)VALUES (?, ?, ?, ?, ?, 'checked_in')" `
 
   4. **Corrected Checkout** 
-     Replaced now tih current-timestamp
+
+     Replaced now with current-timestamp
      ```js
       await pool.execute(
             "UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = 'checked_out' WHERE id = ?",
@@ -107,5 +108,43 @@
 
 ## Result
 - The check-in form now submits reliably.
+
+### --------------------------------------------------------------------------------------------------------------------------###
+
+## 3. Dashboard Stats Not Loading for employees
+## Location
+- `backend/routes/dashboard.js` (line 85)
+
+### What Was Wrong  
+The backend query used MySQL-specific date functions while the application was running on SQLite: `DATE_SUB(NOW(), INTERVAL 7 DAY)`
+NOW(), DATE_SUB, and INTERVAL are not supported in SQLite,hence teh query failed
+
+## How It was Fixed
+The query was rewritten using SQLite-compatible datetime functions:
+    ```js
+           const [weekStats] = await pool.execute(
+  `SELECT COUNT(*) AS total_checkins,
+          COUNT(DISTINCT client_id) AS unique_clients
+   FROM checkins
+   WHERE employee_id = ?
+     AND checkin_time >= datetime('now', '-7 days')`,
+  [req.user.id]
+);
+
+
+
+## Why This Fix Is Correct
+
+SQLite supports datetime('now', '-7 days') for date calculations
+
+The query now executes correctly in the active database
+
+
+## Result
+
+-Dashboard statistics load correctly
+-Weekly check-in counts are accurate
+-The dashboard no longer fails due to invalid SQL syntax
+
 
 ### --------------------------------------------------------------------------------------------------------------------------###

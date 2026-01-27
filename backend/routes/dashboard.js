@@ -52,6 +52,7 @@ router.get('/stats', authenticateToken, requireManager, async (req, res) => {
 // Get employee dashboard (for employees)
 router.get('/employee', authenticateToken, async (req, res) => {
     try {
+        console.log('Fetching dashboard for employee ID:', req.user.id);
         const today = new Date().toISOString().split('T')[0];
 
         // Get today's check-ins
@@ -64,6 +65,8 @@ router.get('/employee', authenticateToken, async (req, res) => {
             [req.user.id, today]
         );
 
+        console.log('Today check-ins for employee:', todayCheckins);
+
         // Get assigned clients
         const [clients] = await pool.execute(
             `SELECT c.* FROM clients c
@@ -72,12 +75,14 @@ router.get('/employee', authenticateToken, async (req, res) => {
             [req.user.id]
         );
 
+        console.log('Assigned clients for employee:', clients);
+
         // Get this week's stats
         const [weekStats] = await pool.execute(
             `SELECT COUNT(*) as total_checkins,
                     COUNT(DISTINCT client_id) as unique_clients
              FROM checkins
-             WHERE employee_id = ? AND checkin_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)`,
+             WHERE employee_id = ? AND checkin_time >= datetime('now', '-7 days')`,
             [req.user.id]
         );
 
