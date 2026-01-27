@@ -46,6 +46,9 @@ const execute = (sql, params = []) => {
         .all();
 
     console.log('📦 Tables in database:', tables);
+
+
+
     return new Promise((resolve, reject) => {
         try {
             // Replace MySQL ? placeholders - SQLite also uses ? so this should work

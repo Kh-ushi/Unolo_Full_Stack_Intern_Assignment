@@ -25,9 +25,11 @@ function CheckIn({ user }) {
             ]);
 
             if (clientsRes.data.success) {
+                console.log('Fetched clients:', clientsRes.data.data);
                 setClients(clientsRes.data.data);
             }
             if (activeRes.data.success) {
+                console.log('Fetched active check-in:', activeRes.data.data);
                 setActiveCheckin(activeRes.data.data);
             }
         } catch (err) {
@@ -56,6 +58,7 @@ function CheckIn({ user }) {
     };
 
     const handleCheckIn = async (e) => {
+        e.preventDefault();
         setError('');
         setSuccess('');
         setSubmitting(true);

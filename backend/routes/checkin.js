@@ -7,12 +7,14 @@ const router = express.Router();
 // Get assigned clients for employee
 router.get('/clients', authenticateToken, async (req, res) => {
     try {
+        console.log('Fetching clients for employee ID:', req.user.id);
         const [clients] = await pool.execute(
             `SELECT c.* FROM clients c
              INNER JOIN employee_clients ec ON c.id = ec.client_id
              WHERE ec.employee_id = ?`,
             [req.user.id]
         );
+        console.log('Fetched clients:', clients);
 
         res.json({ success: true, data: clients });
     } catch (error) {
@@ -23,6 +25,7 @@ router.get('/clients', authenticateToken, async (req, res) => {
 
 // Create new check-in
 router.post('/', authenticateToken, async (req, res) => {
+    console.log('Check-in request body:', req.body);
     try {
         const { client_id, latitude, longitude, notes } = req.body;
 
@@ -35,16 +38,20 @@ router.post('/', authenticateToken, async (req, res) => {
             'SELECT * FROM employee_clients WHERE employee_id = ? AND client_id = ?',
             [req.user.id, client_id]
         );
-
+            
+ 
         if (assignments.length === 0) {
+            console.log('Employee not assigned to client:', client_id);
             return res.status(403).json({ success: false, message: 'You are not assigned to this client' });
         }
 
         // Check for existing active check-in
         const [activeCheckins] = await pool.execute(
-            'SELECT * FROM checkins WHERE employee_id = ? AND status = "checked_in"',
+            "SELECT * FROM checkins WHERE employee_id = ? AND status = 'checked_in'",
             [req.user.id]
         );
+
+        console.log('Active check-ins for employee:', activeCheckins);
 
         if (activeCheckins.length > 0) {
             return res.status(400).json({ 
@@ -54,7 +61,7 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         const [result] = await pool.execute(
-            `INSERT INTO checkins (employee_id, client_id, lat, lng, notes, status)
+            `INSERT INTO checkins (employee_id, client_id, latitude, longitude, notes, status)
              VALUES (?, ?, ?, ?, ?, 'checked_in')`,
             [req.user.id, client_id, latitude, longitude, notes || null]
         );
@@ -85,7 +92,7 @@ router.put('/checkout', authenticateToken, async (req, res) => {
         }
 
         await pool.execute(
-            'UPDATE checkins SET checkout_time = NOW(), status = "checked_out" WHERE id = ?',
+            "UPDATE checkins SET checkout_time = NOW(), status = 'checked_out' WHERE id = ?",
             [activeCheckins[0].id]
         );
 

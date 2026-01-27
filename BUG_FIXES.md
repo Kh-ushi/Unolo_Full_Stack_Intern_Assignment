@@ -1,8 +1,6 @@
 # 🐛 BUG_FIXES.md
 
-This document describes the bugs identified during development, including their locations, root causes, fixes applied, and justification for each fix.
-
----
+### --------------------------------------------------------------------------------------------------------------------------###
 
 ## 1. Login Failed Intermittently with Correct Credentials
 ### Location
@@ -46,5 +44,54 @@ This document describes the bugs identified during development, including their 
 
  ## Result
 - Login now works consistently with correct credentials across all application restarts.
+
+### --------------------------------------------------------------------------------------------------------------------------###
+
+## 2. Check-in form doesn't submit properly
+## Location
+ -  `frontend/src/utils/api.js`(Line No.4)
+ -  `backend/routes/checkin.js`(Lines- 50,65,64 )
+
+### What Was Wrong      
+1. **Incorrect API base URL configuration in frontend**   - `frontend/src/utils/api.js` (lines 6–9)
+  The Axios instance was using a relative or hardcoded base URL while backend services were running on different routes or ports.
+  This caused check-in API requests to intermittently hit incorrect endpoints.    
+
+2. **Incorrect SQL string comparison in SQLite query**   - `backend/routes/checkin.js`(Lines- 50,65 )
+     The backend query used double quotes for string comparison: `status = "checked_in"`   
+     In SQLite, double quotes are treated as identifiers (column names), not string literals.
+     As a result, the query returned no rows and code was stuck there even when valid records existed.
+
+3. **Incorrect SQL Query**  - `backend/routes/checkin.js`(Lines- 50,65 )
+   The column names were mentioned as lat and long instaed of latitude and longitude respectively.
+
+
+### How It Was Fixed
+1. **Configured API base URL using environment variables**  
+   Added `VITE_API_BASE_URL` to the frontend `.env` file and updated the Axios instance:
+   ```js
+   const api = axios.create({
+   baseURL: import.meta.env.VITE_API_BASE_URL,
+   });
+
+ 2. **Corrected SQLite string comparison syntax**
+    Replaced double quotes with single quotes:  
+    `status = 'checked_in'`
+
+ 3. **Corrected SQL Query**
+    Replaced at and long instaed of latitude with longitude respectively:
+    ` "INSERT INTO checkins (employee_id, client_id, latitude, longitude, notes, status)VALUES (?, ?, ?, ?, ?, 'checked_in')" `
+
+
+### WHY THIS FIX IS CORRECT
+
+- Environment-based configuration ensures frontend requests always target the correct backend endpoint.
+
+- Single quotes are required for string literals in SQLite, ensuring correct query behavior.
+
+- Correct column naming ensures database queries align with the actual schema and return acc-urate location data.
+
+## Result
+- The check-in form now submits reliably.
 
 ### --------------------------------------------------------------------------------------------------------------------------###
