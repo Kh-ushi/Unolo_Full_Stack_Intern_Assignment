@@ -206,3 +206,35 @@ The query now executes correctly in the active database
 
  ### --------------------------------------------------------------------------------------------------------------------------###
 
+ ## 6.Location Data Not Saved Correctly During Check-In
+
+ ## Location of Error
+ - `frontend/src/pages/CheckIn.jsx` (Lines-61-102 , CheckIn function has been changed )
+
+ ### What Was Wrong
+
+ 1. **The check-in API was being triggered before the user’s geolocation was available.**
+ - navigator.geolocation.getCurrentPosition() is asynchronous
+
+ - React state updates (setLocation) are also asynchronous
+
+ - The check-in API call relied on state values that were not yet populated
+
+ - As a result, latitude and longitude were often undefined and default value of gurgaon was always being set as location
+
+ - A fallback location of Gurgaon masked the issue.
+
+  
+ ## How It Was Fixed
+ - The check-in API call was moved inside the geolocation success callback, ensuring coordinates are available before submission.
+ - Default fallback coordinates were removed, and explicit user feedback was added when location access is denied.
+
+ ## Why the Fix Is Correct
+ - Geolocation data is guaranteed to exist before the API request is sent
+ - Prevents incorrect or fake location data from being stored
+ - Ensures backend receives accurate, user-specific GPS coordinates
+
+ ## Result
+ - Location data is now consistently saved correctly
+
+ ### --------------------------------------------------------------------------------------------------------------------------###

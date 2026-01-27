@@ -16,7 +16,7 @@ router.get('/clients', authenticateToken, async (req, res) => {
         );
         console.log('Fetched clients:', clients);
 
-        res.status.json({ success: true, data: clients });
+        res.json({ success: true, data: clients });
     } catch (error) {
         console.error('Get clients error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch clients' });
