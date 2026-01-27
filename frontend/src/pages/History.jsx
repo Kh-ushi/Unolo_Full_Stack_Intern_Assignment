@@ -12,13 +12,13 @@ function History({ user }) {
         fetchHistory();
     }, []);
 
-    const fetchHistory = async () => {
+    const fetchHistory = async (start=startDate, end=endDate) => {
         try {
             let url = '/checkin/history';
             const params = new URLSearchParams();
             
-            if (startDate) params.append('start_date', startDate);
-            if (endDate) params.append('end_date', endDate);
+            if (start) params.append('start_date', start);
+            if (end) params.append('end_date', end);
             
             if (params.toString()) {
                 url += '?' + params.toString();
@@ -27,6 +27,7 @@ function History({ user }) {
             const response = await api.get(url);
             
             if (response.data.success) {
+                console.log('Fetched check-in history:', response.data.data);
                 setCheckins(response.data.data);
             }
         } catch (err) {
@@ -42,7 +43,7 @@ function History({ user }) {
         fetchHistory();
     };
 
-    const totalHours = checkins.reduce((total, checkin) => {
+    const totalHours = checkins?.reduce((total, checkin) => {
         if (checkin.checkout_time) {
             const checkinTime = new Date(checkin.checkin_time);
             const checkoutTime = new Date(checkin.checkout_time);
@@ -50,7 +51,9 @@ function History({ user }) {
             return total + hours;
         }
         return total;
-    }, 0);
+    }, 0)??0;
+
+    console.log("Total-hours",totalHours);
 
     if (loading) {
         return (
@@ -105,7 +108,7 @@ function History({ user }) {
                             setStartDate('');
                             setEndDate('');
                             setLoading(true);
-                            fetchHistory();
+                            fetchHistory('','');
                         }}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
                     >

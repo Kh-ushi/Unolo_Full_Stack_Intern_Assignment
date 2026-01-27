@@ -148,3 +148,42 @@ The query now executes correctly in the active database
 
 
 ### --------------------------------------------------------------------------------------------------------------------------###
+
+## 4.  Attendance history page crashes on load & Clear components have performance issues as it  didn't update correctly
+## Location
+- `frontend/src/pages/History.jsx` (Lines- 46 & 54,15&111)
+
+### What Was Wrong
+1. **Runtime errors while calculating total hours using reduce()** - `frontend/src/pages/History.jsx` (Lines- 46 & 54)
+     - The reduce() method was being called on a value that was not always an array.
+     - Initial state could be undefined or null
+     - Error Showed: `checkins.reduce is not a function`
+
+
+2. **History did not reset immediately on clicking "Clear"**  - `frontend/src/pages/History.jsx` (15&111)
+    - The fetchHistory() function was called immediately after updating React state (setStartDate, setEndDate).
+    - Since state updates are asynchronous, fetchHistory() was executed with stale filter values.
+
+
+ ## How It Was Fixed
+ 1. **Ensured reduce() is only called on valid arrays,ensuring it retuns 0 in whichever case the result comes null.**
+  - Added defensive checks to prevent calling reduce() on non-array values
+
+ 2. **Ensured async handling when clearing filters by passing parameter then and there only**
+  
+ 
+ ## Why the Fix Is Correct
+- Defensive handling of API responses prevents runtime crashes and improves UI stability.
+- Passing parameter then and there only does not make fetchHistory calculate with stale parameters
+
+## Result
+
+- Clicking “Clear” immediately refreshes the history view
+
+- Total hours calculation works reliably
+
+- No runtime errors from reduce()
+
+- History view behaves predictably across renders
+
+### --------------------------------------------------------------------------------------------------------------------------###

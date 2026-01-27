@@ -92,7 +92,7 @@ router.put('/checkout', authenticateToken, async (req, res) => {
         }
 
         await pool.execute(
-            "UPDATE checkins SET checkout_time =  CURRENT_TIMESTAMP, status = 'checked_out' WHERE id = ?",
+            "UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = 'checked_out' WHERE id = ?",
             [activeCheckins[0].id]
         );
 
@@ -126,6 +126,8 @@ router.get('/history', authenticateToken, async (req, res) => {
         query += ' ORDER BY ch.checkin_time DESC';
 
         const [checkins] = await pool.execute(query, params);
+
+        console.log('Fetched check-in history:', checkins);
 
         res.json({ success: true, data: checkins });
     } catch (error) {
