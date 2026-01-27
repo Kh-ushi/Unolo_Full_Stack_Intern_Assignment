@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const { calculateDistanceKm } = require('../utlils/distance');
 
 const router = express.Router();
 
@@ -29,8 +30,8 @@ router.post('/', authenticateToken, async (req, res) => {
     try {
         const { client_id, latitude, longitude, notes } = req.body;
 
-        if (!client_id) {
-            return res.status(400).json({ success: false, message: 'Client ID is required' });
+        if (!client_id || !latitude || !longitude) {
+            return res.status(400).json({ success: false, message: 'Client ID, latitude, and longitude are required' });
         }
 
         // Check if employee is assigned to this client
@@ -38,8 +39,8 @@ router.post('/', authenticateToken, async (req, res) => {
             'SELECT * FROM employee_clients WHERE employee_id = ? AND client_id = ?',
             [req.user.id, client_id]
         );
-            
- 
+
+
         if (assignments.length === 0) {
             console.log('Employee not assigned to client:', client_id);
             return res.status(403).json({ success: false, message: 'You are not assigned to this client' });
@@ -54,23 +55,50 @@ router.post('/', authenticateToken, async (req, res) => {
         console.log('Active check-ins for employee:', activeCheckins);
 
         if (activeCheckins.length > 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'You already have an active check-in. Please checkout first.' 
+            return res.status(400).json({
+                success: false,
+                message: 'You already have an active check-in. Please checkout first.'
             });
         }
 
-        const [result] = await pool.execute(
-            `INSERT INTO checkins (employee_id, client_id, latitude, longitude, notes, status)
-             VALUES (?, ?, ?, ?, ?, 'checked_in')`,
-            [req.user.id, client_id, latitude, longitude, notes || null]
+
+
+    //------------------------ CALCULATE DISTANCE FROM CLIENT LOCATION ---------------------------------------------
+        const [clients] = await pool.execute(
+            'SELECT latitude, longitude FROM clients WHERE id = ?',
+            [client_id]
         );
 
+        if (clients.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Client not found'
+            });
+        }
+
+
+        const client = clients[0];
+        const distance = calculateDistanceKm(
+            latitude,
+            longitude,
+            client.latitude,
+            client.longitude
+        );
+
+    //------------------------------------------------------------------------------------------------------------    
+
+        const [result] = await pool.execute(
+            `INSERT INTO checkins (employee_id, client_id, latitude, longitude, distance_from_client, notes, status)
+             VALUES (?, ?, ?, ?, ?, ?, 'checked_in')`,
+            [req.user.id, client_id, latitude, longitude, distance, notes || null]
+        );
+     
         res.status(201).json({
             success: true,
             data: {
                 id: result.insertId,
-                message: 'Checked in successfully'
+                message: 'Checked in successfully',
+                distance_from_client: distance
             }
         });
     } catch (error) {
@@ -107,7 +135,7 @@ router.put('/checkout', authenticateToken, async (req, res) => {
 router.get('/history', authenticateToken, async (req, res) => {
     try {
         const { start_date, end_date } = req.query;
-        
+
         let query = `
             SELECT ch.*, c.name as client_name, c.address as client_address
             FROM checkins ch
@@ -148,9 +176,9 @@ router.get('/active', authenticateToken, async (req, res) => {
             [req.user.id]
         );
 
-        res.json({ 
-            success: true, 
-            data: checkins.length > 0 ? checkins[0] : null 
+        res.json({
+            success: true,
+            data: checkins.length > 0 ? checkins[0] : null
         });
     } catch (error) {
         console.error('Active checkin error:', error);

@@ -120,3 +120,53 @@ Initial data from seed.sql is inserted to provide a ready-to-use local environme
 
 ## This reset-and-reinitialize approach simplifies setup, removes ambiguity during development, and ensures anyone running the project locally starts with the same database state
 
+
+## -------------------------------------------------------------------------------------------------------##
+
+## NEW FEATURES AND ENDPOINTS
+
+
+**1. Feature A: Real-time Distance Calculation**
+- Creates a new check-in for an employee and calculates the distance between the employee’s current location and the assigned client location.
+- changes are made for checkin api inside `backend/routes/checkin.js`
+
+- REQUEST BODY
+      ```js
+             {
+           "client_id": 1,
+           "latitude": 28.4595,
+           "longitude": 77.0266,
+            "notes": "Visit notes"
+               }
+
+- Response Body
+      ```js
+              {
+              "success": true,
+              "data": {
+                "checkin_id": 12,
+                "distance_from_client": 0.42
+              }
+               }
+
+**Architecture Decisions**
+- Backend-Driven Distance Calculation
+- The frontend sends only the employee’s current GPS coordinates.
+- The backend retrieves the client’s stored coordinates using client_id.
+- Distance is calculated server-side using the Haversine formula.
+
+**Reasoning:**
+- Prevents manipulation of client location data
+- Avoids duplicating business logic in the frontend
+- Ensures consistent distance calculations across platforms    
+
+**Single Source of Truth for Distance**
+- D- istance is calculated once during check-in.
+- Stored in the database with the check-in record.
+- Reused in:
+- Check-in response
+- Attendance history
+
+**Reasoning:**
+- Improves data consistency
+- Simplifies frontend logic

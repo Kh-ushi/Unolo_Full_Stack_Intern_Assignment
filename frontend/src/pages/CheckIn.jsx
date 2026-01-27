@@ -11,6 +11,7 @@ function CheckIn({ user }) {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [current_distance_from_client, setCurrentDistanceFromClient] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -26,10 +27,12 @@ function CheckIn({ user }) {
 
             if (clientsRes.data.success) {
                 console.log('Fetched clients:', clientsRes.data.data);
+                setCurrentDistanceFromClient(clientsRes.data.data.distance_from_client);
                 setClients(clientsRes.data.data);
             }
             if (activeRes.data.success) {
                 console.log('Fetched active check-in:', activeRes.data.data);
+                setCurrentDistanceFromClient(activeRes.data.data.distance_from_client);
                 setActiveCheckin(activeRes.data.data);
             }
         } catch (err) {
@@ -82,6 +85,7 @@ function CheckIn({ user }) {
 
                     if (response.data.success) {
                         setSuccess('Checked in successfully!');
+                        setCurrentDistanceFromClient(response.data.data.distance_from_client);
                         setSelectedClient('');
                         setNotes('');
                         fetchData(); 
@@ -158,6 +162,25 @@ function CheckIn({ user }) {
                     <p className="text-gray-500">Getting location...</p>
                 )}
             </div>
+
+            {/* Distance from Client Card */}
+            {current_distance_from_client !== null ?(
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                    <h3 className="font-semibold text-green-800 mb-2">Distance from Client</h3>
+                    <p className="text-green-700">
+                        You are currently {current_distance_from_client.toFixed(2)} km away from the client.
+                    </p>
+                    {current_distance_from_client > 0.5 ? (
+                        <p className="text-sm text-red-600 mt-1">
+                            Warning: You are far from the client location.
+                        </p>
+                    ) : (
+                        <p className="text-sm text-green-600 mt-1">
+                            You are within the acceptable range of the client location.
+                        </p>
+                    )}
+                </div>
+            ): null}
 
             {/* Active Check-in Card */}
             {activeCheckin && (
