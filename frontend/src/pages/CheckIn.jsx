@@ -93,7 +93,7 @@ function CheckIn({ user }) {
 
         try {
             const response = await api.put('/checkin/checkout');
-            
+
             if (response.data.success) {
                 setSuccess('Checked out successfully!');
                 setActiveCheckin(null);
@@ -151,7 +151,9 @@ function CheckIn({ user }) {
                         You are currently checked in at <strong>{activeCheckin.client_name}</strong>
                     </p>
                     <p className="text-sm text-blue-600 mt-1">
-                        Since: {new Date(activeCheckin.checkin_time).toLocaleString()}
+                        Since: {new Date(activeCheckin.checkin_time).toLocaleString('en-IN', {
+                            timeZone: 'Asia/Kolkata'
+                        })}
                     </p>
                     <button
                         onClick={handleCheckOut}
@@ -167,7 +169,7 @@ function CheckIn({ user }) {
             {!activeCheckin && (
                 <div className="bg-white rounded-lg shadow p-6">
                     <h3 className="font-semibold mb-4">New Check-in</h3>
-                    
+
                     <form onSubmit={handleCheckIn}>
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-medium mb-2">

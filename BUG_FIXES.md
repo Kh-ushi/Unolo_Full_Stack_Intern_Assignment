@@ -47,10 +47,12 @@
 
 ### --------------------------------------------------------------------------------------------------------------------------###
 
-## 2. Check-in form doesn't submit properly
+## 2. Check-in form doesn't submit properly & Checkout was failing
 ## Location
  -  `frontend/src/utils/api.js`(Line No.4)
  -  `backend/routes/checkin.js`(Lines- 50,65,64 )
+ -  `backend/routes/checkin.js`(Lines- 95 )
+
 
 ### What Was Wrong      
 1. **Incorrect API base URL configuration in frontend**   - `frontend/src/utils/api.js` (lines 6–9)
@@ -64,6 +66,9 @@
 
 3. **Incorrect SQL Query**  - `backend/routes/checkin.js`(Lines- 50,65 )
    The column names were mentioned as lat and long instaed of latitude and longitude respectively.
+
+4. **Checkout was failing** - `backend/routes/checkin.js`(Lines-95 )
+   SQL doesn't understand NOW()
 
 
 ### How It Was Fixed
@@ -82,6 +87,14 @@
     Replaced at and long instaed of latitude with longitude respectively:
     ` "INSERT INTO checkins (employee_id, client_id, latitude, longitude, notes, status)VALUES (?, ?, ?, ?, ?, 'checked_in')" `
 
+  4. **Corrected Checkout** 
+     Replaced now tih current-timestamp
+     ```js
+      await pool.execute(
+            "UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = 'checked_out' WHERE id = ?",
+            [activeCheckins[0].id]
+        );
+
 
 ### WHY THIS FIX IS CORRECT
 
@@ -90,6 +103,7 @@
 - Single quotes are required for string literals in SQLite, ensuring correct query behavior.
 
 - Correct column naming ensures database queries align with the actual schema and return acc-urate location data.
+
 
 ## Result
 - The check-in form now submits reliably.
