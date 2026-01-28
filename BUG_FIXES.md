@@ -29,6 +29,7 @@
 2. **Added `await` to bcrypt comparison**
    ```js
    const isValidPassword = await bcrypt.compare(password, user.password);
+   ```
 
 
 ## Why the Fix Is Correct
@@ -78,6 +79,7 @@
    const api = axios.create({
    baseURL: import.meta.env.VITE_API_BASE_URL,
    });
+   ```
 
  2. **Corrected SQLite string comparison syntax**
     Replaced double quotes with single quotes:  
@@ -95,7 +97,7 @@
             "UPDATE checkins SET checkout_time = CURRENT_TIMESTAMP, status = 'checked_out' WHERE id = ?",
             [activeCheckins[0].id]
         );
-
+      ```
 
 ### WHY THIS FIX IS CORRECT
 
@@ -121,7 +123,7 @@ NOW(), DATE_SUB, and INTERVAL are not supported in SQLite,hence teh query failed
 
 ## How It was Fixed
 The query was rewritten using SQLite-compatible datetime functions:
-    ```js
+```js
            const [weekStats] = await pool.execute(
   `SELECT COUNT(*) AS total_checkins,
           COUNT(DISTINCT client_id) AS unique_clients
@@ -130,6 +132,7 @@ The query was rewritten using SQLite-compatible datetime functions:
      AND checkin_time >= datetime('now', '-7 days')`,
   [req.user.id]
 );
+```
 
 
 

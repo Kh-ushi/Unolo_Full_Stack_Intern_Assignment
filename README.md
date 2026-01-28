@@ -138,7 +138,7 @@ Initial data from seed.sql is inserted to provide a ready-to-use local environme
            "longitude": 77.0266,
             "notes": "Visit notes"
                }
-
+      ```
 - Response Body
       ```js
               {
@@ -148,7 +148,7 @@ Initial data from seed.sql is inserted to provide a ready-to-use local environme
                 "distance_from_client": 0.42
               }
                }
-
+      ```
 **Architecture Decisions**
 - Backend-Driven Distance Calculation
 - The frontend sends only the employee’s current GPS coordinates.
@@ -197,7 +197,7 @@ The **Daily Summary Report API** provides managers with a consolidated view of t
 - Backend Aggregation
 All statistics are calculated on the backend using SQL aggregation functions (e.g., COUNT, SUM, GROUP BY) instead of processing raw data in the frontend.
 
-Why this approach was chosen:
+**Why this approach was chosen:**
 
 Optimized Operations: Databases are specifically designed for high-performance aggregation.
 
@@ -207,13 +207,12 @@ Logic Centralization: Ensures consistent business logic across all platforms.
 
 Frontend Simplicity: Simplifies UI rendering by providing "ready-to-display" data.
 
-- Avoiding the N+1 Query Problem
+**Avoiding the N+1 Query Problem**
 The API uses a single aggregated SQL query with joins between users and check-ins instead of running one query per employee.
-- Key Benefits:
+
+**Key Benefits:**
 Efficiency: Only one database query is executed regardless of team size.
 Scalability: Prevents performance degradation as the organization grows.
 Performance: Eliminates linear query growth $O(n)$, maintaining a constant query load $O(1)$.
-
-
 
 ## -------------------------------------------------------------------------------------------------------##
