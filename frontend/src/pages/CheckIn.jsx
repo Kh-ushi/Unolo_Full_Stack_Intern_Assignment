@@ -88,7 +88,7 @@ function CheckIn({ user }) {
                         setCurrentDistanceFromClient(response.data.data.distance_from_client);
                         setSelectedClient('');
                         setNotes('');
-                        fetchData(); 
+                        fetchData();
                     } else {
                         setError(response.data.message);
                     }
@@ -164,11 +164,11 @@ function CheckIn({ user }) {
             </div>
 
             {/* Distance from Client Card */}
-            {current_distance_from_client !== null ?(
+            {current_distance_from_client !== null ? (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
                     <h3 className="font-semibold text-green-800 mb-2">Distance from Client</h3>
                     <p className="text-green-700">
-                        You are currently {current_distance_from_client.toFixed(2)} km away from the client.
+                        You are currently {current_distance_from_client} km away from the client.
                     </p>
                     {current_distance_from_client > 0.5 ? (
                         <p className="text-sm text-red-600 mt-1">
@@ -180,7 +180,7 @@ function CheckIn({ user }) {
                         </p>
                     )}
                 </div>
-            ): null}
+            ) : null}
 
             {/* Active Check-in Card */}
             {activeCheckin && (

@@ -170,3 +170,50 @@ Initial data from seed.sql is inserted to provide a ready-to-use local environme
 **Reasoning:**
 - Improves data consistency
 - Simplifies frontend logic
+
+
+
+
+2. # Feature B: Daily Summary Report API**
+
+The **Daily Summary Report API** provides managers with a consolidated view of their team’s activity for a specific date. It returns both per-employee statistics and team-level aggregates, computed efficiently on the backend.
+
+## 🚀 Endpoint Reference
+
+### `GET /api/reports/daily-summary`
+
+**Access Control:**
+* 🔒 **Managers Only**
+* Protected using authentication and role-based authorization (RBAC).
+
+### Example Requests
+
+**Full Team Summary:**
+     ```http
+        GET /api/reports/daily-summary?date=2024-01-15
+        GET /api/reports/daily-summary?date=2024-01-15&employee_id=2
+
+**Architecture Decisions**
+- Backend Aggregation
+All statistics are calculated on the backend using SQL aggregation functions (e.g., COUNT, SUM, GROUP BY) instead of processing raw data in the frontend.
+
+Why this approach was chosen:
+
+Optimized Operations: Databases are specifically designed for high-performance aggregation.
+
+Network Efficiency: Reduces the volume of data transferred over the network.
+
+Logic Centralization: Ensures consistent business logic across all platforms.
+
+Frontend Simplicity: Simplifies UI rendering by providing "ready-to-display" data.
+
+- Avoiding the N+1 Query Problem
+The API uses a single aggregated SQL query with joins between users and check-ins instead of running one query per employee.
+- Key Benefits:
+Efficiency: Only one database query is executed regardless of team size.
+Scalability: Prevents performance degradation as the organization grows.
+Performance: Eliminates linear query growth $O(n)$, maintaining a constant query load $O(1)$.
+
+
+
+## -------------------------------------------------------------------------------------------------------##

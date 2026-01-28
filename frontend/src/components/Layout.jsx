@@ -6,7 +6,10 @@ function Layout({ user, onLogout }) {
     const navItems = [
         { path: '/dashboard', label: 'Dashboard' },
         { path: '/checkin', label: 'Check In' },
-        { path: '/history', label: 'History' }
+        { path: '/history', label: 'History' },
+        ...(user?.id === 1
+            ? [{ path: '/reports', label: 'Daily-Summary' }]
+            : []),
     ];
 
     return (
@@ -21,11 +24,10 @@ function Layout({ user, onLogout }) {
                                 <Link
                                     key={item.path}
                                     to={item.path}
-                                    className={`px-3 py-2 rounded-md text-sm font-medium ${
-                                        location.pathname === item.path
+                                    className={`px-3 py-2 rounded-md text-sm font-medium ${location.pathname === item.path
                                             ? 'bg-blue-100 text-blue-700'
                                             : 'text-gray-600 hover:bg-gray-100'
-                                    }`}
+                                        }`}
                                 >
                                     {item.label}
                                 </Link>

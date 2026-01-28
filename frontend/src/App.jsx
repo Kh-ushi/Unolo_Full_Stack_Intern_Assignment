@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import CheckIn from './pages/CheckIn';
 import History from './pages/History';
 import Layout from './components/Layout';
+import Reports from './pages/Reports';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -63,6 +64,7 @@ function App() {
                     <Route path="dashboard" element={<Dashboard user={user} />} />
                     <Route path="checkin" element={<CheckIn user={user} />} />
                     <Route path="history" element={<History user={user} />} />
+                    <Route path="reports" element={<Reports user={user} />} />
                 </Route>
             </Routes>
         </BrowserRouter>
