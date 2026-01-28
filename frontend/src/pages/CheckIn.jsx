@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
+import { act } from 'react';
 
 function CheckIn({ user }) {
     const [clients, setClients] = useState([]);
@@ -27,12 +28,11 @@ function CheckIn({ user }) {
 
             if (clientsRes.data.success) {
                 console.log('Fetched clients:', clientsRes.data.data);
-                setCurrentDistanceFromClient(clientsRes.data.data.distance_from_client);
                 setClients(clientsRes.data.data);
             }
             if (activeRes.data.success) {
                 console.log('Fetched active check-in:', activeRes.data.data);
-                setCurrentDistanceFromClient(activeRes.data.data.distance_from_client);
+                setCurrentDistanceFromClient(activeRes?.data?.data?.distance_from_client||null);
                 setActiveCheckin(activeRes.data.data);
             }
         } catch (err) {
@@ -168,7 +168,7 @@ function CheckIn({ user }) {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
                     <h3 className="font-semibold text-green-800 mb-2">Distance from Client</h3>
                     <p className="text-green-700">
-                        You are currently {current_distance_from_client} km away from the client.
+                        You are currently {current_distance_from_client.toFixed(2)} km away from the client.
                     </p>
                     {current_distance_from_client > 0.5 ? (
                         <p className="text-sm text-red-600 mt-1">
